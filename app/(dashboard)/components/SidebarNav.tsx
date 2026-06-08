@@ -108,9 +108,9 @@ export function SidebarNav({
   const adminItems: NavItem[] = [
     { href: "/", label: "Beranda", icon: <IconHome /> },
     { href: "/admin", label: "Presensi", icon: <IconCalendar /> },
+    { href: "/admin/izin", label: "Izin", icon: <IconCalendar /> },
     { href: "/admin/settings", label: "Pengaturan", icon: <IconSettings /> },
     { href: "/admin/users", label: "User", icon: <IconUsers /> },
-
   ];
 
   const pklItems: NavItem[] = [

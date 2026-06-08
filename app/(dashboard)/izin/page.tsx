@@ -3,6 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
+import { formatDateIndo } from "@/lib/format";
+import Modal from "@/app/(dashboard)/components/Modal";
+
 type IzinRequest = {
   id: number;
   tanggal_mulai: string;
@@ -24,6 +27,7 @@ export default function IzinPage() {
   const [submitFormType, setSubmitFormType] = useState<SubmitFormType>("swap_with_colleague");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: "ok" | "err"; text: string } | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Form state
   const [tanggalMulai, setTanggalMulai] = useState("");
@@ -369,50 +373,69 @@ export default function IzinPage() {
         </div>
       ) : (
         <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-lg shadow-slate-200/50">
-          <h2 className="mb-4 text-lg font-semibold text-slate-800">Riwayat Permintaan Izin</h2>
+          <h2 className="mb-6 text-xl font-bold text-slate-800">Riwayat Permintaan Izin</h2>
 
           {myRequests.length === 0 ? (
-            <div className="rounded-xl bg-slate-50 px-4 py-8 text-center">
-              <p className="text-sm text-slate-500">Belum ada permintaan izin</p>
+            <div className="rounded-2xl bg-slate-50 px-4 py-12 text-center border-2 border-dashed border-slate-200">
+              <p className="text-slate-500">Belum ada riwayat permintaan izin</p>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="grid gap-6 sm:grid-cols-2">
               {myRequests.map((request) => (
                 <div
                   key={request.id}
-                  className="rounded-xl border border-slate-200 p-4 hover:border-slate-300"
+                  className="rounded-2xl border border-slate-200 p-5 transition hover:border-blue-200 hover:shadow-md hover:shadow-blue-500/5 group bg-white"
                 >
-                  <div className="mb-3 flex items-start justify-between">
-                    <div>
-                      <h3 className="font-semibold text-slate-800">
-                        {request.tanggal_mulai} - {request.tanggal_selesai}
-                      </h3>
-                      <p className="text-xs text-slate-500">{request.jam_mulai} - {request.jam_selesai}</p>
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <h3 className="font-bold text-slate-800 leading-tight">
+                          {formatDateIndo(request.tanggal_mulai)} - {formatDateIndo(request.tanggal_selesai)}
+                        </h3>
+                      </div>
+                      <p className="text-xs font-medium text-slate-500 flex items-center gap-1.5 ml-6">
+                        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {request.jam_mulai} - {request.jam_selesai}
+                      </p>
                     </div>
                     <span
-                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                      className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
                         request.status === "PENDING"
-                          ? "bg-amber-100 text-amber-700"
+                          ? "bg-amber-50 text-amber-600 ring-1 ring-amber-200"
                           : request.status === "APPROVED"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                          ? "bg-emerald-50 text-emerald-600 ring-1 ring-emerald-200"
+                          : "bg-rose-50 text-rose-600 ring-1 ring-rose-200"
                       }`}
                     >
                       {request.status === "PENDING" ? "Menunggu" : request.status === "APPROVED" ? "Disetujui" : "Ditolak"}
                     </span>
                   </div>
 
-                  <p className="mb-3 text-sm text-slate-600">{request.alasan}</p>
+                  <div className="mb-4">
+                    <p className="text-sm text-slate-600 leading-relaxed">{request.alasan}</p>
+                  </div>
 
                   {request.foto_bukti && (
-                    <div className="mb-3 max-w-xs overflow-hidden rounded-lg border">
-                      <img src={request.foto_bukti} alt="Bukti" className="h-32 w-full object-cover" />
+                    <div
+                      onClick={() => setPreviewImage(request.foto_bukti)}
+                      className="mb-4 group relative cursor-zoom-in overflow-hidden rounded-xl border border-slate-100 bg-slate-50"
+                    >
+                      <img src={request.foto_bukti} alt="Bukti" className="h-28 w-full object-cover transition duration-300 group-hover:scale-105" />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/0 opacity-0 transition group-hover:bg-black/20 group-hover:opacity-100">
+                        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                        </svg>
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span>Dibuat: {new Date(request.created_at).toLocaleDateString("id-ID")}</span>
-                    <span>{request.nama}</span>
+                  <div className="flex items-center justify-between border-t border-slate-50 pt-4 text-[10px] font-medium text-slate-400 italic">
+                    <span>Diajukan pada {new Date(request.created_at).toLocaleDateString("id-ID", { day: 'numeric', month: 'short' })}</span>
                   </div>
                 </div>
               ))}
@@ -420,6 +443,22 @@ export default function IzinPage() {
           )}
         </div>
       )}
+
+      {/* Image Preview Modal */}
+      <Modal open={!!previewImage} onClose={() => setPreviewImage(null)}>
+        <div className="relative -m-6 overflow-hidden rounded-2xl">
+          <img src={previewImage || ""} alt="Preview Bukti" className="h-auto w-full" />
+          <button
+            onClick={() => setPreviewImage(null)}
+            className="absolute right-4 top-4 rounded-full bg-black/50 p-2 text-white transition hover:bg-black/70"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </Modal>
     </div>
   );
 }
+
