@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth";
 import pool from "@/lib/db";
-import type { IzinGantiHariRow } from "@/lib/db";
+import { ResultSetHeader } from "mysql2/promise";
 
 export async function POST(request: NextRequest) {
   try {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Insert izin request
-    const [result] = await pool.execute<IzinGantiHariRow[]>(
+    const [result] = await pool.execute<ResultSetHeader>(
       `INSERT INTO izin_ganti_hari
         (user_id, tanggal_mulai, jam_mulai, tanggal_selesai, jam_selesai, alasan, status, foto_bukti)
        VALUES (?, ?, ?, ?, ?, ?, 'PENDING', ?)`,
